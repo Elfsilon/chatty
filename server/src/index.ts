@@ -2,22 +2,31 @@ import express from 'express';
 import SocketIO from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import db from './connection/connection';
+
+const testConnection = async () => {
+    try {
+        await db.authenticate();
+        console.log('Connection has been established successfully.');
+    } catch (error) {
+        console.error('Unable to connect to the database:', error);
+    }
+}
+testConnection();
 
 const app: express.Application = express();
 
 dotenv.config();
 app.use(cors({ 
-    origin: 'http://localhost:3000',
+    origin: process.env.HOST + ':' + process.env.PORT,
     credentials: true
 }));
-
-const PORT = process.env.PORT;
 
 app.get('/', (req: express.Request, res: express.Response): void => {
     res.send('Hello!');
 });
 
-const server = app.listen(PORT, () => console.log(`Serves at localhost:${PORT}`));
+const server = app.listen(process.env.PORT, () => console.log(`Serves at ${process.env.HOST}:${process.env.PORT}`));
 
 // Web sockets
 const ws = SocketIO.listen(server);
